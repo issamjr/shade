@@ -30,7 +30,7 @@ Before running the tool, make sure that you have the following:
 Clone or download the repository to your local machine:
 
 ```bash
-git clone [<repository_url>](https://github.com/issamjr/shade)
+git clone https://github.com/issamjr/shade.git
 cd shade
 pip install -r requirements.txt
 python3 shade.py # or python3 shade.py -h
